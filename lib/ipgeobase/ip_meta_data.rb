@@ -5,6 +5,23 @@ module Ipgeobase
   class IpMetaData
     include HappyMapper
 
+    def self.parse(resp)
+      begin
+        super(resp)
+      rescue
+        obj = Object.new
+        obj.instance_eval do
+          def method_missing(*args)
+            available_methods = [:city, :country, :region]
+            return nil if args.count == 1 && available_methods.include?(args[0])
+            super
+          end
+        end
+        obj
+      end
+    end
+
+
     tag 'ip-answer'
     element :inetnum, String, :deep => true
     element :city, String, :deep => true
